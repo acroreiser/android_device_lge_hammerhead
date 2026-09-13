@@ -4,6 +4,11 @@
 
 echo 3000000 > /proc/sys/kernel/sched_min_granularity_ns
 
+echo 1 > /proc/sys/kernel/sched_bore
+echo 1 > /proc/sys/kernel/sched_burst_fork_atavistic
+echo 19 > /proc/sys/kernel/sched_burst_penalty_offset
+echo 2048 > /proc/sys/kernel/sched_burst_penalty_scale
+
 echo 100 > /dev/blkio/background/blkio.weight
 
 echo 4 > /proc/sys/vm/kswapd_threads

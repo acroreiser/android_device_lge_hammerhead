@@ -5,9 +5,45 @@
  */
 
 #include "Helpers.h"
+#include <fstream>
 #include <regex>
+#include <sstream>
 #include <vector>
+
+#include <android-base/logging.h>
+
 using namespace android::hardware::radio;
+
+static const char* kCachedPcscfPath = "/data/system/ims_cached_pcscf.txt";
+
+static std::string ReadCachedPcscf() {
+    std::ifstream file(kCachedPcscfPath);
+    if (!file.is_open())
+        return std::string();
+
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    std::string contents = buffer.str();
+
+    std::vector<std::string> addresses;
+    std::regex rgx("[,\\s]+");
+    std::sregex_token_iterator iter(contents.begin(), contents.end(), rgx, -1);
+    std::sregex_token_iterator end;
+    for ( ; iter != end; ++iter) {
+        std::string addr = *iter;
+        if (!addr.empty())
+            addresses.push_back(addr);
+    }
+
+    std::string result;
+    for (size_t i = 0; i < addresses.size(); ++i) {
+        if (i != 0)
+            result += " ";
+        result += addresses[i];
+    }
+
+    return result;
+}
 
 V1_4::SignalStrength Create1_4SignalStrength(const V1_0::SignalStrength& sigStrength){
 
@@ -207,7 +243,13 @@ V1_4::SetupDataCallResult Create1_4SetupDataCallResult(const V1_0::SetupDataCall
     newDCR.addresses = DelimitedStrToVec(dcResponse.addresses);
     newDCR.dnses = DelimitedStrToVec(dcResponse.dnses);
     newDCR.gateways = DelimitedStrToVec(dcResponse.gateways);
-    newDCR.pcscf = DelimitedStrToVec(dcResponse.pcscf);
+
+    std::string pcscf = dcResponse.pcscf;
+    if (pcscf.empty())
+        pcscf = ReadCachedPcscf();
+
+    newDCR.pcscf = DelimitedStrToVec(pcscf);
+
     if(dcResponse.type == std::string("IP"))
         newDCR.type= V1_4::PdpProtocolType::IP;
     else if(dcResponse.type == std::string("IPV6"))

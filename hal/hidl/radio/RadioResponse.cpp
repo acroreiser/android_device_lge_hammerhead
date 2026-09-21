@@ -8,7 +8,13 @@
 #include "RadioIndication.h"
 #include "RadioResponse.h"
 #include "Helpers.h"
-#include<string>
+#include <string>
+#include <android-base/properties.h>
+#include <regex>
+#include <vector>
+#include <thread>
+#include <chrono>
+#include <set>
 
 namespace android::hardware::radio::implementation {
 
@@ -290,8 +296,55 @@ Return<void> RadioResponse::setNetworkSelectionModeManualResponse(
     return mRealRadioResponse->setNetworkSelectionModeManualResponse(info);
 }
 
+static void appendInjectedMccMnc(std::vector<V1_4::CellInfo>& cellInfos,
+                                 std::set<std::string>& existingNumerics) {
+    std::string injectProp = android::base::GetProperty("persist.radio.inject_mccmnc", "");
+    if (injectProp.empty()) return;
+
+    std::regex sep("[,\\s]+");
+    std::sregex_token_iterator it(injectProp.begin(), injectProp.end(), sep, -1);
+    std::sregex_token_iterator end;
+
+    for (; it != end; ++it) {
+        std::string numeric = *it;
+        if (numeric.length() < 5) continue;
+
+        if (existingNumerics.count(numeric)) continue;
+
+        std::string mcc = numeric.substr(0, 3);
+        std::string mnc = numeric.substr(3);
+        if (mnc.length() == 1) {
+            mnc = "0" + mnc;
+        }
+
+        V1_4::CellInfo cell = {};
+        cell.isRegistered = false;
+        cell.connectionStatus = V1_2::CellConnectionStatus::NONE;
+
+        V1_2::CellIdentityLte lteId = {};
+        lteId.base.mcc = mcc;
+        lteId.base.mnc = mnc;
+        lteId.base.ci = INT_MAX;
+        lteId.base.pci = INT_MAX;
+        lteId.base.tac = INT_MAX;
+        lteId.base.earfcn = INT_MAX;
+
+        std::string displayName = numeric + " (injected)";
+        lteId.operatorNames.alphaLong = displayName;
+        lteId.operatorNames.alphaShort = displayName;
+
+        V1_4::CellInfo::Info cellInfoUnion;
+        cellInfoUnion.lte(V1_4::CellInfoLte{{lteId, {}}});
+        cell.info = cellInfoUnion;
+
+        cellInfos.push_back(cell);
+        existingNumerics.insert(numeric);
+    }
+}
+
 hidl_vec<V1_4::CellInfo> convertOperatorInfoToCellInfo1_4(const hidl_vec<V1_0::OperatorInfo>& networkInfos) {
     std::vector<V1_4::CellInfo> cellInfos;
+    std::set<std::string> existingNumerics;
 
     for (const auto& op : networkInfos) {
         V1_4::CellInfo cell = {};
@@ -326,7 +379,10 @@ hidl_vec<V1_4::CellInfo> convertOperatorInfoToCellInfo1_4(const hidl_vec<V1_0::O
         cell.info = info;
 
         cellInfos.push_back(cell);
+        existingNumerics.insert(numeric);
     }
+
+    appendInjectedMccMnc(cellInfos, existingNumerics);
 
     return hidl_vec<V1_4::CellInfo>(cellInfos);
 }
@@ -907,7 +963,34 @@ Return<void> RadioResponse::emergencyDialResponse(const V1_0::RadioResponseInfo&
 }
 
 Return<void> RadioResponse::startNetworkScanResponse_1_4(const V1_0::RadioResponseInfo& info) {
-    return mRealRadioResponse->startNetworkScanResponse_1_4(info);
+    auto ret = mRealRadioResponse->startNetworkScanResponse_1_4(info);
+
+    std::string injectProp = android::base::GetProperty("persist.radio.inject_mccmnc", "");
+    if (!injectProp.empty() && xxRadioIndication && xxRadioIndication->mRealRadioIndication) {
+        std::thread([injectProp]() {
+            std::this_thread::sleep_for(std::chrono::milliseconds(150));
+
+            if (!xxRadioIndication || !xxRadioIndication->mRealRadioIndication) {
+                return;
+            }
+
+            std::vector<V1_4::CellInfo> cellInfos;
+            std::set<std::string> existingNumerics;
+            appendInjectedMccMnc(cellInfos, existingNumerics);
+
+            if (!cellInfos.empty()) {
+                V1_4::NetworkScanResult scanResult = {};
+                scanResult.status = V1_1::ScanStatus::PARTIAL;
+                scanResult.error = V1_0::RadioError::NONE;
+                scanResult.networkInfos = cellInfos;
+
+                xxRadioIndication->mRealRadioIndication->networkScanResult_1_4(
+                        V1_0::RadioIndicationType::UNSOLICITED, scanResult);
+            }
+        }).detach();
+    }
+
+    return ret;
 }
 
 Return<void> RadioResponse::getCellInfoListResponse_1_4(const V1_0::RadioResponseInfo& info,

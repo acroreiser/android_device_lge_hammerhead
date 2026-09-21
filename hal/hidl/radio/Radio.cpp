@@ -842,7 +842,7 @@ Return<void> Radio::startNetworkScan_1_4(int32_t serial, const V1_2::NetworkScan
     info.serial = serial;
     info.type = V1_0::RadioResponseType::SOLICITED;
     info.error = V1_0::RadioError::NONE;
-    mRadioResponse->mRealRadioResponse->startNetworkScanResponse_1_4(info);
+    mRadioResponse->startNetworkScanResponse_1_4(info);
     WRAP_V1_0_CALL(getAvailableNetworks, serial);
 
     return Void();

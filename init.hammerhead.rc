@@ -42,6 +42,8 @@ on init
 on fs
     mount_all /vendor/etc/fstab.hammerhead --early
 
+    mount tmpfs tmpfs /metadata size=16m
+
     # These directories have different labeling in stock rom.
     # Jumping from stock needs restorecon -F to apply our labeling.
     exec u:r:vendor_init:s0 root root -- /vendor/bin/toybox_vendor \

@@ -143,4 +143,7 @@ MALLOC_SVELTE := true
 TARGET_USES_INTERACTION_BOOST := true
 TARGET_USES_NON_LEGACY_POWERHAL := true
 
+# Metadata
+BOARD_USES_METADATA_PARTITION := true
+
 -include vendor/lge/hammerhead/BoardConfigVendor.mk

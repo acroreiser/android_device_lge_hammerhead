@@ -30,10 +30,6 @@ $(call inherit-product, vendor/lineage/config/partner_gms.mk)
 PRODUCT_PACKAGES += \
     DocumentsUIOverlayGo
 
-# Enable Private Space feature
-PRODUCT_PACKAGES += \
-    PrivateSpaceOverlay
-
 # Overlay for Gboard
 PRODUCT_PACKAGES += \
     GboardOverlay

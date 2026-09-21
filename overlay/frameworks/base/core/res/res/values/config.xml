@@ -337,4 +337,7 @@
     <string name="config_wlan_data_service_package">com.google.android.iwlan</string>
     <string name="config_wlan_network_service_package">com.google.android.iwlan</string>
     <string name="config_qualified_networks_service_package">com.android.telephony.qns</string>
+
+    <!-- Whether or not ActivityManager PSS profiling is disabled. -->
+    <bool name="config_am_disablePssProfiling">true</bool>
 </resources>

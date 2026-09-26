@@ -14,6 +14,11 @@ echo 100 > /dev/blkio/background/blkio.weight
 echo $(pidof system_server) > /dev/cpuctl/top-app/tasks
 echo 5120 > /dev/cpuctl/foreground/cpu.shares
 
+echo NO_TTWU_QUEUE > /d/sched_features
+echo NO_RT_RUNTIME_SHARE > /d/sched_features
+echo NO_GENTLE_FAIR_SLEEPERS > /d/sched_features
+echo NO_START_DEBIT > /d/sched_features
+
 echo 4 > /proc/sys/vm/kswapd_threads
 
 echo 1 > /proc/sys/vm/watermark_scale_factor

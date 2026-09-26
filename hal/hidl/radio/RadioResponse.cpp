@@ -391,8 +391,15 @@ Return<void> RadioResponse::getAvailableNetworksResponse(
         const V1_0::RadioResponseInfo& info, const hidl_vec<V1_0::OperatorInfo>& networkInfos) {
     V1_4::NetworkScanResult scanResult = {};
     scanResult.status = V1_1::ScanStatus::COMPLETE;
-    scanResult.error = info.error;
+
     scanResult.networkInfos = convertOperatorInfoToCellInfo1_4(networkInfos);
+
+    if (scanResult.networkInfos.size() > 0) {
+        scanResult.error = V1_0::RadioError::NONE;
+    } else {
+        scanResult.error = info.error;
+    }
+
     xxRadioIndication->mRealRadioIndication->networkScanResult_1_4(
             V1_0::RadioIndicationType::UNSOLICITED, scanResult);
 

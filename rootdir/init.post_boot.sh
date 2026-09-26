@@ -11,6 +11,9 @@ echo 2048 > /proc/sys/kernel/sched_burst_penalty_scale
 
 echo 100 > /dev/blkio/background/blkio.weight
 
+echo $(pidof system_server) > /dev/cpuctl/top-app/tasks
+echo 5120 > /dev/cpuctl/foreground/cpu.shares
+
 echo 4 > /proc/sys/vm/kswapd_threads
 
 echo 1 > /proc/sys/vm/watermark_scale_factor

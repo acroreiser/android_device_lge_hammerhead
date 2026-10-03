@@ -27,4 +27,7 @@ echo 1 > /proc/sys/vm/watermark_scale_factor
 echo "27648,32256,36864,46080,51200,61440" > /sys/module/lowmemorykiller/parameters/minfree
 echo 150 > /sys/module/lowmemorykiller/parameters/kill_timeout_ms
 
+# Some apps may crash due to SIGBUS on misaligned access
+echo 2 > /proc/cpu/alignment
+
 /vendor/bin/timekeep restore

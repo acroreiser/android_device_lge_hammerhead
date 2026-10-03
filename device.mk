@@ -645,3 +645,8 @@ PRODUCT_PROPERTY_OVERRIDES += \
 # Since ($SRC_TARGET)/product/generic.mk is included instead of full_base.mk the device config also need to
 #  pick up the default Android Platform product locale list
 $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_default.mk)
+
+# Cgroup and task_profiles for bfqio
+PRODUCT_COPY_FILES += \
+    $(LOCAL_PATH)/cgroups.json:$(TARGET_COPY_OUT_VENDOR)/etc/cgroups.json \
+    $(LOCAL_PATH)/task_profiles.json:$(TARGET_COPY_OUT_VENDOR)/etc/task_profiles.json

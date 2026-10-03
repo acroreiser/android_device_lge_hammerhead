@@ -22,6 +22,43 @@ on early-init
 
     mount cgroup cpuset /dev/cpuset cpuset
 
+    # Configure bfqio cgroup controller
+    mkdir /dev/bfqio 0755 system system
+    mount cgroup bfqio /dev/bfqio bfqio
+
+    write /dev/bfqio/bfqio.weight 1000
+    chmod 0664 /dev/bfqio/tasks
+    chown system system /dev/bfqio/tasks
+    chmod 0664 /dev/bfqio/cgroup.procs
+    chown system system /dev/bfqio/cgroup.procs
+
+    mkdir /dev/bfqio/background 0755 system system
+    write /dev/bfqio/background/bfqio.weight 50
+    chmod 0664 /dev/bfqio/background/tasks
+    chown system system /dev/bfqio/background/tasks
+    chmod 0664 /dev/bfqio/background/cgroup.procs
+    chown system system /dev/bfqio/background/cgroup.procs
+
+    mkdir /dev/bfqio/foreground 0755 system system
+    write /dev/bfqio/foreground/bfqio.weight 200
+    chmod 0664 /dev/bfqio/foreground/tasks
+    chown system system /dev/bfqio/foreground/tasks
+    chmod 0664 /dev/bfqio/foreground/cgroup.procs
+    chown system system /dev/bfqio/foreground/cgroup.procs
+
+    mkdir /dev/bfqio/top-app 0755 system system
+    write /dev/bfqio/top-app/bfqio.weight 1000
+    chmod 0664 /dev/bfqio/top-app/tasks
+    chown system system /dev/bfqio/top-app/tasks
+    chmod 0664 /dev/bfqio/top-app/cgroup.procs
+    chown system system /dev/bfqio/top-app/cgroup.procs
+
+    write /sys/block/mmcblk0/queue/scheduler bfq
+    write /sys/block/mmcblk0/queue/iosched/slice_idle 0
+    write /sys/block/mmcblk0/queue/iosched/low_latency 0
+
+    write /sys/block/mmcblk0/queue/iostats 1
+
     # set permissions for cmdline
     chmod 0444 /proc/cmdline
 
@@ -54,10 +91,6 @@ on fs
     start hwservicemanager
 
 on late-fs
-    # boot time fs tune
-    write /sys/block/mmcblk0/queue/iostats 1
-    write /sys/block/mmcblk0/queue/iosched/low_latency 0
-
     # start services
     start vendor.gralloc-2-0
     start vendor.hwcomposer-2-1

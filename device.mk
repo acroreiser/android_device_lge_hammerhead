@@ -573,7 +573,11 @@ PRODUCT_PROPERTY_OVERRIDES += \
 $(call inherit-product, build/make/target/product/go_defaults_512.mk)
 
 # Setup dalvik vm configs
-$(call inherit-product, frameworks/native/build/phone-hdpi-512-dalvik-heap.mk)
+PRODUCT_PROPERTY_OVERRIDES += \
+    dalvik.vm.heapstartsize=16m \
+    dalvik.vm.heaptargetutilization=0.75 \
+    dalvik.vm.heapminfree=2m \
+    dalvik.vm.heapmaxfree=8m
 
 # Dalvik heap
 PRODUCT_PROPERTY_OVERRIDES += \

@@ -349,7 +349,8 @@ PRODUCT_PACKAGES += \
 # Display
 PRODUCT_PROPERTY_OVERRIDES += \
     debug.egl.hw=0 \
-    ro.opengles.version=196608
+    ro.opengles.version=196608 \
+    debug.egl.rive_workaround=1
 
 PRODUCT_PROPERTY_OVERRIDES += \
     debug.hwui.renderer=opengl \

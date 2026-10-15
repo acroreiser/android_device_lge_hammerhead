@@ -651,3 +651,7 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_default.mk)
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/cgroups.json:$(TARGET_COPY_OUT_VENDOR)/etc/cgroups.json \
     $(LOCAL_PATH)/task_profiles.json:$(TARGET_COPY_OUT_VENDOR)/etc/task_profiles.json
+
+# Reduce log level to warnings
+PRODUCT_PROPERTY_OVERRIDES += \
+    persist.log.tag=W

@@ -34,3 +34,5 @@ allow mm-qcamerad storage_file:lnk_file { getattr read write open };
 allow mm-qcamerad mnt_user_file:dir { getattr read write open search };
 allow mm-qcamerad mnt_user_file:lnk_file { getattr read write open };
 allow mm-qcamerad fuse:dir { getattr read write open search };
+
+get_prop(mm-qcamerad, camera_prop);

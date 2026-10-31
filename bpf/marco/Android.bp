@@ -1,0 +1,23 @@
+genrule {
+    name: "bpf_lmk_obj_gen",
+    srcs: ["bpf_lmk.c"],
+    tools: ["bpfcc"],
+    out: ["bpf_lmk.o"],
+    cmd: "$(location bpfcc) -legacy-maps -DCOMMON_PADDING $(in) -o $(out)",
+}
+
+prebuilt_etc {
+    name: "bpf_lmk",
+    src: ":bpf_lmk_obj_gen",
+    filename: "bpf_lmk.o",
+    sub_dir: "marco",
+    soc_specific: true,
+}
+
+cc_binary {
+    name: "marco",
+    srcs: ["lmkd_bpf.c"],
+    cflags: ["-Wall", "-Wno-unused-result"],
+    init_rc: ["lmkd_bpf.rc"],
+    soc_specific: true,
+}

@@ -657,3 +657,8 @@ PRODUCT_COPY_FILES += \
 # Reduce log level to warnings
 PRODUCT_PROPERTY_OVERRIDES += \
     persist.log.tag=W
+
+# eBPF-based LowMemoryKiller Daemon
+PRODUCT_PACKAGES += \
+    bpf_lmk \
+    marco

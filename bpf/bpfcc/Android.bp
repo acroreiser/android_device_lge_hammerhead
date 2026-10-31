@@ -1,0 +1,5 @@
+cc_binary_host {
+    name: "bpfcc",
+    srcs: ["bpfcc.c"],
+    cflags: ["-O2"],
+}
